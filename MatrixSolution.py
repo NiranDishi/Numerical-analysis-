@@ -1,6 +1,7 @@
-def MatUcreation(A): #Create matrix U and L and send them back
+def MatUcreation(A):  # Create matrix U and L and send them back
     L = copy_matrix(A)
     size = len(A)
+    global MatL
     for i in range(len(A)):
         for j in range(len(A)):
             if j == i:
@@ -8,36 +9,43 @@ def MatUcreation(A): #Create matrix U and L and send them back
             else:
                 L[i][j] = 0
     Yehida = copy_matrix(L)
+
     for pivot in range(size):
         for i in range(pivot + 1, size):
+            if (A[pivot][pivot] == 0):
+                print(A)
+                exit()
             Yehida[i][pivot] = float(A[i][pivot] / A[pivot][pivot] * (-1))
             A = MatrixMultiply(Yehida, A)
-            L = MatrixMultiply(L, Inversion(Yehida))
+            L = MatrixMultiply(L, Inversion(copy_matrix(Yehida), LU=1))
             Yehida[i][pivot] = 0
 
-
-    global MatL
     MatL=L
     return (A)
 
 
-def Inversion(A): #creates A-1 by a formula learned at class , we noticed to take care about Gauss Unstablize problem
+def Inversion(A,
+              LU=0):  # creates A-1 by a formula learned at class , we noticed to take care about Gauss Unstablize problem
     InverseA = copy_matrix(A)
     size = len(A)
+    global MatB
 
+    if LU != 1:
+        for i in range(
+                size):  # swap rows by MAX pivot for ignoring the gauss unstablize  החלפת שורות כדי לתקן את האי היציבות של גאוס עם התייחסות לוקטור הפתרון כלומר עמודה בי
+            max = abs(A[i][i])
+            for j in range(i, size):
 
-    for i in range(size): # swap rows by MAX pivot for ignoring the gauss unstablize החלפת שורות כדי לתקן את האי היציבות של גאוס
-        max = A[i][i]
-        for j in range(size):
-            if A[i][j]>max:
-                temp=A[j]
-                A[j]=A[i]
-                A[i]=temp
+                if abs(A[j][i]) > max:
+                    temp = A[j]
+                    A[j] = A[i]
+                    A[i] = temp
+                    temp = MatB[j]
+                    MatB[j] = MatB[i]
+                    MatB[i] = temp
+                    max = abs(A[i][i])
 
-
-
-
-    for i in range(len(A)): # create a matrix with diagonal of values and other indexes are 0
+    for i in range(len(A)):  # create a matrix with diagonal of values and other indexes are 0
         for j in range(len(A)):
             if j == i:
                 InverseA[i][j] = 1
@@ -46,7 +54,7 @@ def Inversion(A): #creates A-1 by a formula learned at class , we noticed to tak
     Yehida = copy_matrix(InverseA)
     for pivot in range(size):
         for i in range(pivot):
-            if A[pivot][pivot]==0:
+            if A[pivot][pivot] == 0:
                 return InverseA
             Yehida[i][pivot] = float(A[i][pivot] / A[pivot][pivot] * (-1))
             A = MatrixMultiply(Yehida, A)
@@ -54,27 +62,25 @@ def Inversion(A): #creates A-1 by a formula learned at class , we noticed to tak
             Yehida[i][pivot] = 0
 
         for i in range(pivot + 1, size):
-            if A[pivot][pivot]==0:
+            if A[pivot][pivot] == 0:
                 return InverseA
             Yehida[i][pivot] = float(A[i][pivot] / A[pivot][pivot] * (-1))
             A = MatrixMultiply(Yehida, A)
             InverseA = MatrixMultiply(Yehida, InverseA)
             Yehida[i][pivot] = 0
-    #now we got A with diagonal of not 1,lets make it 1
+    # now we got A with diagonal of not 1,lets make it 1
 
-    ValueOfDividnes=1
-    for i in range (len(A)):
-        if A[i][i]==1:
+    ValueOfDividnes = 1
+    for i in range(len(A)):
+        if A[i][i] == 1:
             continue
         else:
-            ValueOfDividnes=A[i][i]
+            ValueOfDividnes = A[i][i]
             for j in range(len(A)):
-                A[i][j]=A[i][j]/ValueOfDividnes
-                InverseA[i][j]=InverseA[i][j]/ValueOfDividnes
+                A[i][j] = A[i][j] / ValueOfDividnes
+                InverseA[i][j] = InverseA[i][j] / ValueOfDividnes
 
     return InverseA
-
-
 
 
 def MatrixMultiply(A, B): # function that calcualte matrix multiply
@@ -114,7 +120,7 @@ def Determinant(A, total=0):
         # find the submatrix 
         As = copy_matrix(A)  # make a hard copy of original mat
         As = As[1:]  #  remove  first row
-        height = len(As)   
+        height = len(As)
 
         for i in range(height):
             As[i] = As[i][0:fc] + As[i][fc + 1:]#     remove the pivot column elements
@@ -140,39 +146,13 @@ def copy_matrix(s): # creates a copy of s mat and return it
 
 
 
-
-
-
-print("What is the required matrix size? (MxM)")
-MatSize=int(input())
-
-MatA = []
+MatSize=3
+MatA = [[2,4,6],[8,1,2],[2,4,8]]
 MatL=0
-print("please insert {} values to A-Matrix".format(MatSize*MatSize))
+MatB= [4,2,6]
 
-for i in range(MatSize):  # A for loop for row entries
-    a = []
-    for j in range(MatSize):  # A for loop for column entries
-        a.append(int(input()))
-    MatA.append(a)
 
-MatB=[None]*MatSize
-print("if you choose an size of {} , please enter {} values for the result matrix (Matrix - B ) ".format(MatSize,MatSize))
-for x in range(0,MatSize):
-    MatB[x]=input()
 
-print("A Matrix is :")
-i=0
-j=0
-for i in range(0,MatSize):
-    for j in range(0,MatSize):
-        print("[%d]"%MatA[i][j], end ="")
-    print("\n", end ="")
-print("\n", end =" ")
-print("B Matrix is :")
-
-for i in range(0,MatSize):
-    print("[{}]".format(MatB[i]))
 if Determinant(MatA)!=0: #chekc if singular and in that case solution is by A^-1 regular formula
     InverseMat=Inversion(MatA)
 
@@ -184,14 +164,10 @@ if Determinant(MatA)!=0: #chekc if singular and in that case solution is by A^-1
 else: # solution is by L and U matrixes
 
     MatU=MatUcreation(MatA)
-    InverseU=Inversion(MatU) #Inversion of L and U
-    InverseL=Inversion(MatL)  #Inversion of L and U
-    InverseAbyLU=MatrixMultiply(InverseU,InverseL)   #create A-1 by L-1 and U-1 matrix
-    vetcX = MatrixMultiply(InverseAbyLU, MatB)
-    print("")
-    print("The X vector by solution by LU method is :  ")
-    for i in range(len(vetcX)):
-        print("[%.4f]" % vetcX[i])
+    print("MATRIX U IS:",MatU)
+    print("MATRIX L IS:",MatL)
+    print("THE MULTIFICTAION OF MATRIX L AND MATRIX U IS (LU METHOD) :" ,MatrixMultiply(MatL,MatU))
+
 
 
 
